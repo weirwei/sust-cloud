@@ -14,7 +14,9 @@ import com.group6.service.DocumentService;
 import com.group6.service.OBSService;
 import com.obs.services.model.ObsObject;
 import com.obs.services.model.PutObjectResult;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -65,7 +67,13 @@ public class DocumentServiceImpl implements DocumentService {
             throw new BusinessException(EmBusinessError.USER_LACK_OF_PERMISSION, "用户不存在或无权限");
         }
         Document document = new Document(uid, objectKey, file, docDescribe);
-        documentMapper.insert(document);
+        try {
+            documentMapper.insert(document);
+        } catch (DataAccessException e) {
+            if (StringUtils.contains(e.getMessage(), "MySQLIntegrityConstraintViolationException")) {
+                throw new BusinessException(EmBusinessError.DATARESOURCE_CONNECT_FAILURE, "数据插入重复");
+            }
+        }
         return obsService.put(objectKey, file);
     }
 
@@ -82,41 +90,33 @@ public class DocumentServiceImpl implements DocumentService {
 
 
     @Override
-    public void deleteFile(String uid, String objectKey) throws BusinessException {
-        QueryWrapper<Document> documentQueryWrapper = new QueryWrapper<Document>()
-                .eq("uid", uid)
-                .eq("doc_path", objectKey)
-                .eq("doc_status", Document.NORMAL);
-        Document document = documentMapper.selectOne(documentQueryWrapper);
-        if (document == null) {
-            throw new BusinessException(EmBusinessError.USER_LACK_OF_PERMISSION, "用户无权限或资源不存在");
-        }
-        document.setDocStatus(Document.RECYCLING);
-        document.setDeleteTime(LocalDateTime.now().plusHours(recycleTime));
+    public void deleteFile(String uid, List<String> objectKeyList) {
         UpdateWrapper<Document> documentUpdateWrapper = new UpdateWrapper<Document>()
                 .eq("uid", uid)
-                .eq("doc_path", objectKey)
                 .eq("doc_status", Document.NORMAL);
+        for (String objectKey : objectKeyList) {
+            documentUpdateWrapper.eq("doc_path", objectKey).or();
+        }
+        Document document = new Document();
+        document.setDocStatus(Document.RECYCLING);
+        document.setDeleteTime(LocalDateTime.now().plusHours(recycleTime));
+
         documentMapper.update(document, documentUpdateWrapper);
     }
 
 
     @Override
-    public void recoverFile(String uid, String objectKey) throws BusinessException {
-        QueryWrapper<Document> documentQueryWrapper = new QueryWrapper<Document>()
-                .eq("uid", uid)
-                .eq("doc_path", objectKey)
-                .eq("doc_status", Document.RECYCLING);
-        Document document = documentMapper.selectOne(documentQueryWrapper);
-        if (document == null) {
-            throw new BusinessException(EmBusinessError.USER_LACK_OF_PERMISSION, "用户无权限或资源不存在");
-        }
-        document.setDocStatus(Document.NORMAL);
-        document.setDeleteTime(defaultTime);
+    public void recoverFile(String uid, List<String> objectKeyList) {
         UpdateWrapper<Document> documentUpdateWrapper = new UpdateWrapper<Document>()
                 .eq("uid", uid)
-                .eq("doc_path", objectKey)
                 .eq("doc_status", Document.RECYCLING);
+        for (String objectKey : objectKeyList) {
+            documentUpdateWrapper.eq("doc_path", objectKey).or();
+        }
+        Document document = new Document();
+        document.setDocStatus(Document.NORMAL);
+        document.setDeleteTime(defaultTime);
+
         documentMapper.update(document, documentUpdateWrapper);
     }
 

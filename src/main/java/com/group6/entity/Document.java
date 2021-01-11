@@ -3,14 +3,12 @@ package com.group6.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * <p>
@@ -79,7 +77,7 @@ public class Document {
     /**
      * 文件类型
      */
-    private String docType = "UNKNOW";
+    private String docType;
 
     /**
      * 文件大小 单位为 KB
@@ -94,6 +92,7 @@ public class Document {
         this.docSize = file.length() / 1024;
         this.uploadTime = LocalDateTime.now();
         this.docStatus = NORMAL;
+        this.docType = "UNKNOW";
         String suffix = this.docName.substring(this.docName.lastIndexOf(".") + 1).toLowerCase();
         if (!StringUtils.isEmpty(suffix)) {
             this.docType = suffix;
