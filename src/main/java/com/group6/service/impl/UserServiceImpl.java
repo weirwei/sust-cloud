@@ -101,6 +101,18 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public void deleteUser(String jobId) throws BusinessException {
+        LambdaUpdateWrapper<User> updateWrapper=new UpdateWrapper().lambda();
+        updateWrapper.eq(User::getUid,jobId).or().eq(User::getTelephone,jobId);
+        updateWrapper.set(User::getStatus,2);
+        try {
+             userMapper.update(userMapper.selectById(updateWrapper),updateWrapper);
+        }catch (Exception e){
+             throw new BusinessException(EmBusinessError.OPERATION_ILLEGAL,"用户禁用失败");
+        }
+    }
+
     public UserVO transformToVo(User user){
         UserVO userVO=new UserVO();
         BeanUtils.copyProperties(user,userVO);

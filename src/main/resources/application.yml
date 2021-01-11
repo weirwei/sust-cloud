@@ -3,4 +3,22 @@ server:
 spring:
   profiles:
     active: enc
+sust-cloud:
+  recycle:
+    time: 72
 
+#spring:
+#  datasource:
+#    driver-class-name: com.mysql.jdbc.Driver
+#    name:
+#    password:
+#    type:
+#    url:
+#    username:
+#
+#obs:
+#  sust-cloud:
+#    ak:
+#    sk:
+#    bucketname:
+#    endpoint:

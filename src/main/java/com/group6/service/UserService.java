@@ -19,4 +19,5 @@ public interface UserService {
    UserVO getUserInfo(String telephone);
    List<UserVO> getAllUserInfo(Integer page);
    void insertUser(User user) throws BusinessException;
+   void deleteUser(String jobId) throws BusinessException;
 }

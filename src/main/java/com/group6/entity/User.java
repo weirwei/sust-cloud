@@ -2,7 +2,10 @@ package com.group6.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+
+import java.math.BigInteger;
 
 /**
  * <p>
@@ -14,6 +17,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class User{
 
     public static final int DELETE = 0;
@@ -68,7 +72,7 @@ public class User{
     /**
      * 云盘使用量
      */
-    private Double diskUsage;
+    private Long diskUsage;
 
 
 }

@@ -53,15 +53,20 @@ public class DocumentController extends BaseController {
     @ResponseBody
     @ApiOperation("获取所有文件信息")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageNumber", value = "默认6"),
+            @ApiImplicitParam(name = "pageSize", value = "默认1"),
             @ApiImplicitParam(name = "uid", value = "用户工号，默认为空，即查找所有"),
-            @ApiImplicitParam(name = "search", value = "搜索，默认为空，即查找所有")
+            @ApiImplicitParam(name = "search", value = "搜索，默认为空，即查找所有"),
+            @ApiImplicitParam(name = "target", value = "搜索目标，0正常，1回收站，2全部", required = true)
     })
     public FeheadResponse getDocumentList(@PageableDefault(size = 6, page = 1) Pageable pageable,
                                           @RequestParam(value = "uid", defaultValue = "") String uid,
-                                          @RequestParam(value = "search", defaultValue = "") String search) {
+                                          @RequestParam(value = "search", defaultValue = "") String search,
+                                          @RequestParam(value = "target", defaultValue = "0") int target) {
         log.info(PARAM + "uid: " + uid);
         log.info(PARAM + "search: " + search);
-        return CommonReturnType.create(documentService.getDocumentList(pageable, uid, search));
+        log.info(PARAM + "target: " + target);
+        return CommonReturnType.create(documentService.getDocumentList(pageable, uid, search, target));
     }
 
 
@@ -69,7 +74,7 @@ public class DocumentController extends BaseController {
     @ResponseBody
     @ApiOperation("上传文件")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "objectKey", value = "文件上传的路径，如 new/test.txt"),
+            @ApiImplicitParam(name = "objectKey", value = "文件上传的路径，如 new/test.txt", required = true),
             @ApiImplicitParam(name = "docDescribe", value = "选填，默认为空")
     })
     public FeheadResponse putFile(@RequestParam(value = "objectKey") String objectKey,
@@ -99,7 +104,7 @@ public class DocumentController extends BaseController {
     @GetMapping("/file")
     @ApiOperation("下载文件")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "objectKey", value = "文件相对cos中的路径，如 new/test.txt"),
+            @ApiImplicitParam(name = "objectKey", value = "文件相对cos中的路径，如 new/test.txt", required = true),
     })
     public void getFile(@RequestParam(value = "objectKey") String objectKey,
                         @RequestParam(value = "uid") String uid) throws IOException, BusinessException {
@@ -173,12 +178,12 @@ public class DocumentController extends BaseController {
     @ResponseBody
     @ApiOperation("获得分享链接")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "objectKey", value = "文件相对cos中的路径，如 new/test.txt"),
+            @ApiImplicitParam(name = "objectKey", value = "文件相对cos中的路径，如 new/test.txt", required = true),
             @ApiImplicitParam(name = "expires", value = "链接超时时间，单位为秒，默认7个小时"),
     })
     public FeheadResponse getShareLink(@RequestParam(value = "objectKey") String objectKey,
                                        @RequestParam(value = "uid") String uid,
-                                       @RequestParam(value = "expires", defaultValue = "25200") long expires) throws BusinessException, IOException {
+                                       @RequestParam(value = "expires", defaultValue = "7") long expires) throws BusinessException, IOException {
         log.info(PARAM + "objectKey: " + objectKey);
         log.info(PARAM + "uid: " + uid);
         log.info(PARAM + "expires: " + expires);

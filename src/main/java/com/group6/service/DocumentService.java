@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface DocumentService {
 
-    List<Document> getDocumentList(Pageable pageable, String uid, String search);
+    List<Document> getDocumentList(Pageable pageable, String uid, String search, int target);
 
     PutObjectResult putFile(String uid, String objectKey, File file, String docDescribe) throws BusinessException;
 

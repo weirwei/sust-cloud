@@ -32,7 +32,9 @@ import java.util.List;
 @Service
 public class DocumentServiceImpl implements DocumentService {
 
-    // 回收站保留时间
+    /**
+     * 回收站保留时间
+     */
     @Value("${sust-cloud.recycle.time}")
     private int recycleTime;
 
@@ -47,14 +49,17 @@ public class DocumentServiceImpl implements DocumentService {
 
 
     @Override
-    public List<Document> getDocumentList(Pageable pageable, String uid, String search) {
+    public List<Document> getDocumentList(Pageable pageable, String uid, String search, int target) {
         Page<Document> documentPage = new Page<>(pageable.getPageNumber(), pageable.getPageSize());
         QueryWrapper<Document> documentQueryWrapper = new QueryWrapper<>();
         if (!uid.isEmpty()) {
             documentQueryWrapper.eq("uid", uid);
         }
-        documentQueryWrapper.eq("doc_status", 0)
-                .like("doc_name", search);
+        if (target != 2) {
+            documentQueryWrapper.eq("doc_status", target);
+        }
+        documentQueryWrapper.like("doc_name", search);
+
         IPage<Document> documentIPage = documentMapper.selectPage(documentPage, documentQueryWrapper);
         return documentIPage.getRecords();
     }
@@ -72,9 +77,11 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (DataAccessException e) {
             if (StringUtils.contains(e.getMessage(), "MySQLIntegrityConstraintViolationException")) {
                 throw new BusinessException(EmBusinessError.DATARESOURCE_CONNECT_FAILURE, "数据插入重复");
+            } else {
+                throw e;
             }
         }
-        return obsService.put(objectKey, file);
+        return obsService.put(uid + "/" + objectKey, file);
     }
 
 
@@ -85,7 +92,7 @@ public class DocumentServiceImpl implements DocumentService {
         if (document == null) {
             throw new BusinessException(EmBusinessError.USER_LACK_OF_PERMISSION, "用户无权限或资源不存在");
         }
-        return obsService.get(objectKey);
+        return obsService.get(uid + "/" + objectKey);
     }
 
 
@@ -128,7 +135,7 @@ public class DocumentServiceImpl implements DocumentService {
                 .eq("doc_status", Document.RECYCLING);
         List<Document> documentList = documentMapper.selectList(documentQueryWrapper);
         for (Document document : documentList) {
-            obsService.delete(document.getDocPath());
+            obsService.delete(uid + "/" + document.getDocPath());
         }
         documentMapper.delete(documentQueryWrapper);
     }
@@ -142,6 +149,6 @@ public class DocumentServiceImpl implements DocumentService {
         if (document == null) {
             throw new BusinessException(EmBusinessError.USER_LACK_OF_PERMISSION, "用户无权限或资源不存在");
         }
-        return obsService.share(objectKey, expires);
+        return obsService.share(uid + "/" + objectKey, expires);
     }
 }
