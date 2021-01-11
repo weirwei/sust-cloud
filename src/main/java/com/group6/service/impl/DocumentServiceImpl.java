@@ -66,7 +66,7 @@ public class DocumentServiceImpl implements DocumentService {
         if (user == null || user.getStatus() != User.NORMAL) {
             throw new BusinessException(EmBusinessError.USER_LACK_OF_PERMISSION, "用户不存在或无权限");
         }
-        Document document = new Document(uid, objectKey, file, docDescribe);
+        Document document = new Document(uid, objectKey, file.length(), docDescribe);
         try {
             documentMapper.insert(document);
         } catch (DataAccessException e) {

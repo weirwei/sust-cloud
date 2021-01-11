@@ -26,6 +26,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -87,7 +88,10 @@ public class DocumentController extends BaseController {
         if (file == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "文件获取异常");
         }
-        PutObjectResult putObjectResult = documentService.putFile(uid, objectKey, FileUtils.multipartFileToFile(file), docDescribe);
+        File toFile = FileUtils.multipartFileToFile(file);
+        PutObjectResult putObjectResult = documentService.putFile(uid, objectKey, toFile, docDescribe);
+        // multipartFileToFile 会在根目录生产一个副本，删除
+        FileUtils.delteTempFile(toFile);
         return CommonReturnType.create(putObjectResult);
     }
 

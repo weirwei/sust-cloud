@@ -84,12 +84,12 @@ public class Document {
      */
     private Long docSize;
 
-    public Document(String uid, String docPath, File file, String docDescribe) {
+    public Document(String uid, String docPath, Long fileLength, String docDescribe) {
         this.uid = uid;
         this.docName = docPath.substring(docPath.lastIndexOf("/") + 1);
         this.docPath = docPath;
         this.docDescribe = docDescribe;
-        this.docSize = file.length() / 1024;
+        this.docSize = fileLength / 1024;
         this.uploadTime = LocalDateTime.now();
         this.docStatus = NORMAL;
         this.docType = "UNKNOW";
