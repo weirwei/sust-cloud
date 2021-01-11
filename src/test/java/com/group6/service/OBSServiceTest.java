@@ -41,4 +41,10 @@ public class OBSServiceTest {
         List<ObsObject> allFileInfo = obsService.getAllFileInfo();
         System.out.println(allFileInfo);
     }
+
+    @Test
+    public void shareTest() throws IOException {
+        String preview = obsService.share("weirwei/test/《简存取云盘》数据字典.doc", 300);
+        System.out.println(preview);
+    }
 }

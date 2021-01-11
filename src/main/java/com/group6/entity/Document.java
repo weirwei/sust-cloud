@@ -25,9 +25,9 @@ import java.util.Date;
 public class Document {
 
     // 正常状态
-    private static final int NORMAL = 0;
+    public static final int NORMAL = 0;
     // 回收站
-    private static final int RECYCLING = 1;
+    public static final int RECYCLING = 1;
 
     private static final long serialVersionUID = 1L;
 

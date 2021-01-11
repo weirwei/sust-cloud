@@ -65,14 +65,21 @@ public class OBSServiceImpl implements OBSService {
     }
 
     @Override
-    public String preview(String objectKey) throws IOException {
+    public String share(String objectKey, long expires) throws IOException {
         ObsClient obsClient = getInstance();
         // 300 有效时间
-        TemporarySignatureRequest request = new TemporarySignatureRequest(HttpMethodEnum.GET, 300);
+        TemporarySignatureRequest request = new TemporarySignatureRequest(HttpMethodEnum.GET, expires);
         request.setBucketName(bucketName);
         request.setObjectKey(objectKey);
         TemporarySignatureResponse response = obsClient.createTemporarySignature(request);
         obsClient.close();
         return response.getSignedUrl();
+    }
+
+
+    @Override
+    public DeleteObjectResult delete(String objectName) {
+        ObsClient obsClient = getInstance();
+        return obsClient.deleteObject(bucketName, objectName);
     }
 }

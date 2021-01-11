@@ -8,7 +8,9 @@ import com.fehead.lang.response.CommonReturnType;
 import com.fehead.lang.response.FeheadResponse;
 import com.group6.service.DocumentService;
 import com.group6.util.FileUtils;
+import com.obs.services.model.DeleteObjectResult;
 import com.obs.services.model.ObsObject;
+import com.obs.services.model.PutObjectResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -47,12 +49,8 @@ public class DocumentController extends BaseController {
     @Resource
     private DocumentService documentService;
 
-    @GetMapping("/test")
-    public FeheadResponse test() {
-        return CommonReturnType.create(null);
-    }
 
-    @GetMapping("/getDocumentList")
+    @GetMapping("/documentList")
     @ResponseBody
     @ApiOperation("获取所有文件信息")
     @ApiImplicitParams({
@@ -62,13 +60,14 @@ public class DocumentController extends BaseController {
     })
     public FeheadResponse getDocumentList(@PageableDefault(size = 6, page = 1) Pageable pageable,
                                          @RequestParam(value = "uid", defaultValue = "") String uid,
-                                         @RequestParam(value = "search", defaultValue = "") String search) throws IOException {
+                                         @RequestParam(value = "search", defaultValue = "") String search) {
         log.info(PARAM + "uid: " + uid);
         log.info(PARAM + "search: " + search);
         return CommonReturnType.create(documentService.getDocumentList(pageable, uid, search));
     }
 
-    @PostMapping("/put")
+
+    @PostMapping("/file")
     @ResponseBody
     @ApiOperation("上传文件")
     @ApiImplicitParams({
@@ -92,11 +91,12 @@ public class DocumentController extends BaseController {
         if (file == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "文件获取异常");
         }
-        documentService.putFile(uid, objectKey, FileUtils.multipartFileToFile(file), docDescribe);
-        return CommonReturnType.create(null);
+        PutObjectResult putObjectResult = documentService.putFile(uid, objectKey, FileUtils.multipartFileToFile(file), docDescribe);
+        return CommonReturnType.create(putObjectResult);
     }
 
-    @GetMapping("/getFile")
+
+    @GetMapping("/file")
     @ApiOperation("下载文件")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "objectKey", value = "文件相对cos中的路径，如 new/test.txt"),
@@ -125,4 +125,84 @@ public class DocumentController extends BaseController {
         outputStream.close();
         inputStream.close();
     }
+
+
+    @DeleteMapping("/file")
+    @ResponseBody
+    @ApiOperation("删除文件，放入回收站")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "objectKey", value = "文件相对cos中的路径，如 new/test.txt"),
+    })
+    public FeheadResponse deleteFile(@RequestParam(value = "objectKey") String objectKey,
+                                     @RequestParam(value = "uid") String uid) throws BusinessException {
+        log.info(PARAM + "objectKey: " + objectKey);
+        log.info(PARAM + "uid: " + uid);
+        if (StringUtils.isEmpty(objectKey)) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "上传路径获取异常");
+        }
+        if (StringUtils.isEmpty(uid)) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "用户id获取异常");
+        }
+        documentService.deleteFile(uid, objectKey);
+        return CommonReturnType.create(null);
+    }
+
+
+    @PutMapping("/file")
+    @ResponseBody
+    @ApiOperation("从回收站恢复")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "objectKey", value = "文件相对cos中的路径，如 new/test.txt"),
+    })
+    public FeheadResponse recoverFile(@RequestParam(value = "objectKey") String objectKey,
+                                     @RequestParam(value = "uid") String uid) throws BusinessException {
+        log.info(PARAM + "objectKey: " + objectKey);
+        log.info(PARAM + "uid: " + uid);
+        if (StringUtils.isEmpty(objectKey)) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "上传路径获取异常");
+        }
+        if (StringUtils.isEmpty(uid)) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "用户id获取异常");
+        }
+        documentService.recoverFile(uid, objectKey);
+        return CommonReturnType.create(null);
+    }
+
+
+    @GetMapping("/share")
+    @ResponseBody
+    @ApiOperation("获得分享链接")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "objectKey", value = "文件相对cos中的路径，如 new/test.txt"),
+            @ApiImplicitParam(name = "expires", value = "链接超时时间，单位为秒，默认7个小时"),
+    })
+    public FeheadResponse getShareLink(@RequestParam(value = "objectKey") String objectKey,
+                                     @RequestParam(value = "uid") String uid,
+                                       @RequestParam(value = "expires", defaultValue = "25200") long expires) throws BusinessException, IOException {
+        log.info(PARAM + "objectKey: " + objectKey);
+        log.info(PARAM + "uid: " + uid);
+        log.info(PARAM + "expires: " + expires);
+        if (StringUtils.isEmpty(objectKey)) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "上传路径获取异常");
+        }
+        if (StringUtils.isEmpty(uid)) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "用户id获取异常");
+        }
+        String shareLink = documentService.share(uid, objectKey, expires);
+        return CommonReturnType.create(shareLink);
+    }
+
+
+    @DeleteMapping("/bin")
+    @ResponseBody
+    @ApiOperation("清空回收站")
+    public FeheadResponse emptyBin(@RequestParam(value = "uid") String uid) throws BusinessException {
+        log.info(PARAM + "uid: " + uid);
+        if (StringUtils.isEmpty(uid)) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "用户id获取异常");
+        }
+        documentService.emptyBin(uid);
+        return CommonReturnType.create(null);
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.group6.service;
 
+import com.obs.services.model.DeleteObjectResult;
 import com.obs.services.model.ObsObject;
 import com.obs.services.model.PutObjectResult;
 
@@ -15,22 +16,25 @@ public interface OBSService {
 
     /**
      * 上传文件
-     *  @param objectKey 相对于存储桶的对象路径，如 test/test.txt
-     * @param file 为待上传的文件
+     *
+     * @param objectKey 相对于存储桶的对象路径，如 test/test.txt
+     * @param file      为待上传的文件
      * @return
      */
-    public PutObjectResult put(String objectKey, File file);
+    PutObjectResult put(String objectKey, File file);
 
     /**
      * 下载文件
      *
      * @param objectKey 相对于存储桶的对象路径，如 test/test.txt
-     * @throws IOException IOException
      * @return
+     * @throws IOException IOException
      */
-    public ObsObject get(String objectKey) throws IOException;
+    ObsObject get(String objectKey) throws IOException;
 
-    public List<ObsObject> getAllFileInfo() throws IOException;
+    List<ObsObject> getAllFileInfo() throws IOException;
 
-    public String preview(String objectKey) throws IOException;
+    String share(String objectKey, long expires) throws IOException;
+
+    DeleteObjectResult delete(String objectName);
 }
