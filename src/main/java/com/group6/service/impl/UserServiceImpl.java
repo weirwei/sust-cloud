@@ -31,12 +31,18 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Override
-    public UserVO getUser(String phone) {
+    public UserVO getUser(String phone, String firstLogin) {
         QueryWrapper<User> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq("telephone",phone);
         //int count=userMapper.selectCount(queryWrapper);
         User user=userMapper.selectOne(queryWrapper);
-        return transformToVo(user);
+        UserVO userVO = transformToVo(user);
+        if (firstLogin.equals(user.getPassword())) {
+            userVO.setFirst(1);
+        } else {
+            userVO.setFirst(0);
+        }
+        return userVO;
     }
 
     @Override
@@ -58,7 +64,6 @@ public class UserServiceImpl implements UserService {
         updateWrapper.eq(User::getUid,jobId);
         User user=userMapper.selectOne(updateWrapper);
         user.setPassword(password);
-        user.setTelephone(telephone);
         int count=0;
         try {
             count=userMapper.update(user,updateWrapper);
@@ -70,9 +75,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserVO getUserInfo(String telephone) {
+    public UserVO getUserInfo(String uid) {
         QueryWrapper<User> queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("telephone",telephone);
+        queryWrapper.eq("uid",uid);
         User user=userMapper.selectOne(queryWrapper);
         return transformToVo(user);
     }

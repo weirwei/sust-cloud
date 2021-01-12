@@ -68,8 +68,6 @@ public class DocumentController extends BaseController {
         log.info(PARAM + "uid: " + uid);
         log.info(PARAM + "search: " + search);
         log.info(PARAM + "target: " + target);
-//        Cookie[] cookies = request.getCookies();
-//        String uid = CookieUtil.findCookie(cookies, "uid");
         return CommonReturnType.create(documentService.getDocumentList(pageable, uid, search, target));
     }
 
@@ -81,15 +79,14 @@ public class DocumentController extends BaseController {
             @ApiImplicitParam(name = "objectKey", value = "文件上传的路径，如 new/test.txt", required = true),
             @ApiImplicitParam(name = "docDescribe", value = "选填，默认为空")
     })
-    public FeheadResponse putFile(@RequestParam(value = "objectKey") String objectKey,
+    public FeheadResponse putFile(@RequestParam(value = "objectKey", defaultValue = "") String objectKey,
                                   @RequestParam(value = "uid") String uid,
                                   @RequestParam(value = "file") MultipartFile file,
                                   @RequestParam(value = "docDescribe", defaultValue = "") String docDescribe) throws Exception {
         log.info(PARAM + "uid: " + uid);
         log.info(PARAM + "file: " + file);
         log.info(PARAM + "docDescribe: " + docDescribe);
-        Cookie[] cookies = request.getCookies();
-
+        objectKey += file.getOriginalFilename();
         if (StringUtils.isEmpty(objectKey)) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "上传路径获取异常");
         }

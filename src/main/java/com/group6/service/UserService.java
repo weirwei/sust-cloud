@@ -13,7 +13,7 @@ import java.util.List;
  * @Date: 2021/1/8 19:13
  */
 public interface UserService {
-   UserVO getUser(String phone);
+   UserVO getUser(String phone, String firstLogin);
    UserVO getUserByPassword(String jobId,String password) throws BusinessException;
    Integer updatePassword(String password,String jobId,String telephone) throws BusinessException;
    UserVO getUserInfo(String telephone);

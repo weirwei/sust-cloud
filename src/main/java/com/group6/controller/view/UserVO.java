@@ -43,15 +43,10 @@ public class UserVO {
      */
     private String apartment;
 
-    @Override
-    public String toString() {
-        return "UserVO{" +
-                "uid='" + uid + '\'' +
-                ", name='" + name + '\'' +
-                ", telephone='" + telephone + '\'' +
-                ", email='" + email + '\'' +
-                ", avatar='" + avatar + '\'' +
-                ", apartment='" + apartment + '\'' +
-                '}';
-    }
+    /**
+     * 是否首次登录
+     * 1. 首次登陆
+     * 0. 非首次登录
+     */
+    private int first;
 }
