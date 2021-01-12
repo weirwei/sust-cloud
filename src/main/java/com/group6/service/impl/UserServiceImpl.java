@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
         queryWrapper.eq("password",password);
 
         User user=userMapper.selectOne(queryWrapper);
-        if(!user.getPassword().equals(password)||user==null){
+        if(user==null || !user.getPassword().equals(password)){
             throw new BusinessException(EmBusinessError.USER_NOT_EXIST,"用户id或密码错误");
         }
         return transformToVo(user);
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
         updateWrapper.eq(User::getUid,jobId).or().eq(User::getTelephone,jobId);
         updateWrapper.set(User::getStatus,2);
         try {
-             userMapper.update(userMapper.selectById(updateWrapper),updateWrapper);
+             userMapper.update(userMapper.selectOne(updateWrapper),updateWrapper);
         }catch (Exception e){
              throw new BusinessException(EmBusinessError.OPERATION_ILLEGAL,"用户禁用失败");
         }

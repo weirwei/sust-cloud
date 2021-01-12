@@ -5,6 +5,7 @@ import com.fehead.lang.error.BusinessException;
 import com.fehead.lang.error.EmBusinessError;
 import com.fehead.lang.response.CommonReturnType;
 import com.fehead.lang.response.FeheadResponse;
+import com.group6.cookie.CookieUtil;
 import com.group6.service.DocumentService;
 import com.group6.util.FileUtils;
 import com.obs.services.model.ObsObject;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
@@ -53,8 +55,8 @@ public class DocumentController extends BaseController {
     @ResponseBody
     @ApiOperation("获取所有文件信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNumber", value = "默认6"),
-            @ApiImplicitParam(name = "pageSize", value = "默认1"),
+            @ApiImplicitParam(name = "pageNumber", value = "默认1"),
+            @ApiImplicitParam(name = "pageSize", value = "默认6"),
             @ApiImplicitParam(name = "uid", value = "用户工号，默认为空，即查找所有"),
             @ApiImplicitParam(name = "search", value = "搜索，默认为空，即查找所有"),
             @ApiImplicitParam(name = "target", value = "搜索目标，0正常，1回收站，2全部", required = true)
@@ -66,6 +68,8 @@ public class DocumentController extends BaseController {
         log.info(PARAM + "uid: " + uid);
         log.info(PARAM + "search: " + search);
         log.info(PARAM + "target: " + target);
+//        Cookie[] cookies = request.getCookies();
+//        String uid = CookieUtil.findCookie(cookies, "uid");
         return CommonReturnType.create(documentService.getDocumentList(pageable, uid, search, target));
     }
 
@@ -84,6 +88,8 @@ public class DocumentController extends BaseController {
         log.info(PARAM + "uid: " + uid);
         log.info(PARAM + "file: " + file);
         log.info(PARAM + "docDescribe: " + docDescribe);
+        Cookie[] cookies = request.getCookies();
+
         if (StringUtils.isEmpty(objectKey)) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "上传路径获取异常");
         }
