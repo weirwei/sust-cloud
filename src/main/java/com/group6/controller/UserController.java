@@ -4,6 +4,7 @@ import com.fehead.lang.controller.BaseController;
 import com.fehead.lang.error.BusinessException;
 import com.fehead.lang.error.EmBusinessError;
 import com.fehead.lang.response.CommonReturnType;
+import com.group6.controller.view.UserPageVO;
 import com.group6.controller.view.UserVO;
 import com.group6.cookie.CookieUtil;
 import com.group6.entity.User;
@@ -128,8 +129,8 @@ public class UserController extends BaseController {
         //将OTP验证码同对应用户手机号相关联,用httpsession的方式进行相关联
         httpServletRequest.getSession().setAttribute(telephone, otpCode);
         //将OPT验证码通过短信通道发送给用户
-        log.info("telphone=" + telephone + "&otpCode=" + otpCode);
-        System.out.println("telphone=" + telephone + "&otpCode=" + otpCode);
+        log.info("telephone=" + telephone + "&otpCode=" + otpCode);
+        System.out.println("telephone=" + telephone + "&otpCode=" + otpCode);
         //返回验证码
         return CommonReturnType.create(otpCode);
     }
@@ -235,8 +236,8 @@ public class UserController extends BaseController {
             @ApiImplicitParam(name = "page", value = "页数，一页查看15人")
     })
     public CommonReturnType getAllUser(Integer page) {
-        List<UserVO> list = userService.getAllUserInfo(page);
-        return CommonReturnType.create(list);
+        UserPageVO userPageVO = userService.getAllUserInfo(page);
+        return CommonReturnType.create(userPageVO);
     }
 
     /**

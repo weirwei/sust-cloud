@@ -1,6 +1,7 @@
 package com.group6.service;
 
 import com.fehead.lang.error.BusinessException;
+import com.group6.controller.view.UserPageVO;
 import com.group6.controller.view.UserVO;
 import com.group6.entity.User;
 
@@ -17,7 +18,7 @@ public interface UserService {
    UserVO getUserByPassword(String jobId,String password) throws BusinessException;
    Integer updatePassword(String password,String jobId,String telephone) throws BusinessException;
    UserVO getUserInfo(String telephone);
-   List<UserVO> getAllUserInfo(Integer page);
+   UserPageVO getAllUserInfo(Integer page);
    void insertUser(User user) throws BusinessException;
    void deleteUser(String jobId) throws BusinessException;
 }

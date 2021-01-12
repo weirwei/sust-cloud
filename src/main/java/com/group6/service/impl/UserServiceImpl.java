@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fehead.lang.error.BusinessException;
 import com.fehead.lang.error.EmBusinessError;
+import com.group6.controller.view.UserPageVO;
 import com.group6.controller.view.UserVO;
 import com.group6.mapper.UserMapper;
 import com.group6.entity.User;
@@ -83,10 +84,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserVO> getAllUserInfo(Integer page) {
+    public UserPageVO getAllUserInfo(Integer page) {
         QueryWrapper queryWrapper=new QueryWrapper();
         queryWrapper.select("*");
-        Page<User> page1=new Page<>(page,15);
+        Page<User> page1=new Page<>(page,6);
         IPage<User> iPage=userMapper.selectPage(page1,queryWrapper);
         List<User> users=iPage.getRecords();
         List<UserVO> userVOS=new ArrayList<>();
@@ -94,7 +95,8 @@ public class UserServiceImpl implements UserService {
             UserVO userVO=transformToVo(users.get(i));
             userVOS.add(userVO);
         }
-        return userVOS;
+        UserPageVO userPageVO = new UserPageVO(userVOS, iPage.getTotal());
+        return userPageVO;
     }
 
     @Override

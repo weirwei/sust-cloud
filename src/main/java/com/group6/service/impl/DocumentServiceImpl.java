@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fehead.lang.error.BusinessException;
 import com.fehead.lang.error.EmBusinessError;
+import com.group6.controller.view.DocumentPageVO;
 import com.group6.entity.Document;
 import com.group6.entity.User;
 import com.group6.mapper.DocumentMapper;
@@ -49,7 +50,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 
     @Override
-    public List<Document> getDocumentList(Pageable pageable, String uid, String search, int target) {
+    public DocumentPageVO getDocumentList(Pageable pageable, String uid, String search, int target) {
         Page<Document> documentPage = new Page<>(pageable.getPageNumber(), pageable.getPageSize());
         QueryWrapper<Document> documentQueryWrapper = new QueryWrapper<>();
         if (!uid.isEmpty()) {
@@ -61,7 +62,8 @@ public class DocumentServiceImpl implements DocumentService {
         documentQueryWrapper.like("doc_name", search);
 
         IPage<Document> documentIPage = documentMapper.selectPage(documentPage, documentQueryWrapper);
-        return documentIPage.getRecords();
+        DocumentPageVO documentPageVO = new DocumentPageVO(documentIPage.getRecords(), documentIPage.getTotal());
+        return documentPageVO;
     }
 
 

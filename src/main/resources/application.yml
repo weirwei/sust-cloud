@@ -1,11 +1,18 @@
 server:
   port: 8088
 spring:
+  # 设置上传文件的大小
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 931775308
+      max-request-size: 1000MB
   profiles:
     active: enc
 sust-cloud:
   recycle:
     time: 72
+
 
 #spring:
 #  datasource:

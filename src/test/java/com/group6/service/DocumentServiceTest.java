@@ -2,6 +2,7 @@ package com.group6.service;
 
 import com.fehead.lang.error.BusinessException;
 import com.group6.Application;
+import com.group6.controller.view.DocumentPageVO;
 import com.group6.entity.Document;
 import com.obs.services.model.ObsObject;
 import com.obs.services.model.PutObjectResult;
@@ -45,8 +46,8 @@ public class DocumentServiceTest {
     public void getDocumentListTest() {
         String search = "";
         int target = 2;
-        List<Document> documentList = documentService.getDocumentList(pageable, uid, search, target);
-        assert !documentList.isEmpty();
+        DocumentPageVO documentPageVO = documentService.getDocumentList(pageable, uid, search, target);
+        assert documentPageVO != null;
     }
 
 

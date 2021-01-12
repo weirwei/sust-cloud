@@ -6,6 +6,7 @@ import com.fehead.lang.error.EmBusinessError;
 import com.fehead.lang.response.CommonReturnType;
 import com.fehead.lang.response.FeheadResponse;
 import com.group6.cookie.CookieUtil;
+import com.group6.entity.Document;
 import com.group6.service.DocumentService;
 import com.group6.util.FileUtils;
 import com.obs.services.model.ObsObject;
@@ -32,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -135,43 +137,47 @@ public class DocumentController extends BaseController {
     }
 
 
-    @DeleteMapping("/file")
+    @PostMapping("/fileDelete")
     @ResponseBody
     @ApiOperation("删除文件，放入回收站")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "备注", value = "输入文件在obs中的路径，文件相对cos中的路径，如 new/test.txt", readOnly = true),
     })
-    public FeheadResponse deleteFile(@RequestParam(value = "objectKeyList[]") List<String> objectKeyList,
+    public FeheadResponse deleteFile(@RequestParam(value = "objectKey") String objectKey,
                                      @RequestParam(value = "uid") String uid) throws BusinessException {
-        log.info(PARAM + "objectKeyList: " + objectKeyList);
+        log.info(PARAM + "objectKey: " + objectKey);
         log.info(PARAM + "uid: " + uid);
-        if (objectKeyList.size() == 0) {
+        if (objectKey.length() == 0) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "上传路径获取异常");
         }
         if (StringUtils.isEmpty(uid)) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "用户id获取异常");
         }
+        List<String> objectKeyList = new ArrayList<>();
+        objectKeyList.add(objectKey);
         documentService.deleteFile(uid, objectKeyList);
         return CommonReturnType.create(null);
     }
 
 
-    @PutMapping("/file")
+    @PostMapping("/fileRestore")
     @ResponseBody
     @ApiOperation("从回收站恢复")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "备注", value = "输入文件在obs中的路径，文件相对cos中的路径，如 new/test.txt", readOnly = true),
     })
-    public FeheadResponse recoverFile(@RequestParam(value = "objectKeyList[]") List<String> objectKeyList,
+    public FeheadResponse recoverFile(@RequestParam(value = "objectKey") String objectKey,
                                       @RequestParam(value = "uid") String uid) throws BusinessException {
-        log.info(PARAM + "objectKeyList: " + objectKeyList);
+        log.info(PARAM + "objectKey: " + objectKey);
         log.info(PARAM + "uid: " + uid);
-        if (objectKeyList.size() == 0) {
+        if (objectKey.length() == 0) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "上传路径获取异常");
         }
         if (StringUtils.isEmpty(uid)) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "用户id获取异常");
         }
+        List<String> objectKeyList = new ArrayList<>();
+        objectKeyList.add(objectKey);
         documentService.recoverFile(uid, objectKeyList);
         return CommonReturnType.create(null);
     }
@@ -201,7 +207,7 @@ public class DocumentController extends BaseController {
     }
 
 
-    @DeleteMapping("/bin")
+    @PostMapping("/bin")
     @ResponseBody
     @ApiOperation("清空回收站")
     public FeheadResponse emptyBin(@RequestParam(value = "uid") String uid) throws BusinessException {
